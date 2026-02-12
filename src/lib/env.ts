@@ -3,9 +3,8 @@ import { z } from 'zod';
 const EnvSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  OPENAI_API_KEY: z.string().min(1),
-  OPENAI_CHAT_MODEL: z.string().default('gpt-4o-mini'),
-  OPENAI_EMBEDDING_MODEL: z.string().default('text-embedding-3-small')
+  GROQ_API_KEY: z.string().min(1),
+  GROQ_CHAT_MODEL: z.string().default('llama-3.1-8b-instant')
 });
 
 export type AppEnv = z.infer<typeof EnvSchema>;
@@ -18,16 +17,15 @@ export function getEnv(): AppEnv {
   const result = EnvSchema.safeParse({
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-    OPENAI_CHAT_MODEL: process.env.OPENAI_CHAT_MODEL,
-    OPENAI_EMBEDDING_MODEL: process.env.OPENAI_EMBEDDING_MODEL
+    GROQ_API_KEY: process.env.GROQ_API_KEY,
+    GROQ_CHAT_MODEL: process.env.GROQ_CHAT_MODEL
   });
 
   if (!result.success) {
     const missing = result.error.issues.map((issue) => issue.path.join('.')).join(', ');
     throw new Error(
       `Invalid server environment variables. Please configure: ${missing}. ` +
-        'For Vercel, add them in Project Settings → Environment Variables.'
+        'For Vercel: Project Settings → Environment Variables, add values for Production/Preview/Development, then redeploy.'
     );
   }
 

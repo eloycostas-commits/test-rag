@@ -7,7 +7,7 @@ export default function HomePage() {
       <h1>Mechanical Engineering RAG prototype</h1>
       <p>
         Upload technical manuals, legal regulations, and elevator documentation in PDF format. Then
-        query the knowledge base with a chatbot powered by OpenAI + Supabase pgvector.
+        query the knowledge base with a chatbot powered by Groq + Supabase pgvector.
       </p>
       <PdfUploader />
       <ChatPanel />

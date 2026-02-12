@@ -1,4 +1,4 @@
-# Mechanical Engineering PDF RAG Prototype (Next.js + Supabase + OpenAI)
+# Mechanical Engineering PDF RAG Prototype (Next.js + Supabase + Groq)
 
 This project gives you a **TypeScript + React** prototype you can deploy on **Vercel** with **Supabase (free tier)**.
 
@@ -6,7 +6,7 @@ This project gives you a **TypeScript + React** prototype you can deploy on **Ve
 
 - Upload a PDF (technical manuals, regulations, elevator docs).
 - Parse and chunk text.
-- Create embeddings with OpenAI.
+- Create deterministic local embeddings (no paid embedding API required).
 - Store chunks + vectors in Supabase `pgvector`.
 - Chat endpoint retrieves relevant chunks and asks GPT to answer from context.
 
@@ -14,7 +14,8 @@ This project gives you a **TypeScript + React** prototype you can deploy on **Ve
 
 - **Frontend + API**: Next.js App Router on Vercel.
 - **Database + vector search**: Supabase Postgres + `vector` extension.
-- **LLM/embeddings**: OpenAI API (swap models via env vars).
+- **LLM**: Groq API (OpenAI-compatible endpoint).
+- **Embeddings**: lightweight local hashing embeddings (prototype-friendly, zero API cost).
 
 ## Local setup
 
@@ -85,9 +86,8 @@ Make sure all of these are configured in **Project Settings → Environment Vari
 
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `OPENAI_API_KEY`
-- `OPENAI_CHAT_MODEL` (optional, defaults to `gpt-4o-mini`)
-- `OPENAI_EMBEDDING_MODEL` (optional, defaults to `text-embedding-3-small`)
+- `GROQ_API_KEY`
+- `GROQ_CHAT_MODEL` (optional, defaults to `llama-3.1-8b-instant`)
 
 The server now validates these lazily and returns explicit errors at runtime instead of failing import-time during build.
 
@@ -101,3 +101,24 @@ What to do:
 - If you need larger files, switch to direct-to-storage upload (e.g., Supabase Storage signed upload URL) and process in a background job.
 
 The uploader now handles non-JSON error responses gracefully and shows a human-readable error instead of crashing on `response.json()`.
+
+## Required Vercel environment variables (important)
+
+If you see:
+
+`Invalid server environment variables. Please configure: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, GROQ_API_KEY`
+
+it means the deployment has missing secrets.
+
+In Vercel:
+
+1. Open **Project Settings → Environment Variables**.
+2. Add these variables:
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `GROQ_API_KEY`
+   - `GROQ_CHAT_MODEL` *(optional)*
+3. Ensure they are enabled for **Production**, **Preview**, and **Development** (as needed).
+4. Trigger a **Redeploy** after saving variables (existing deploys do not auto-pick up newly added env vars).
+
+Tip: use `.env.example` as the source of truth when copying values to Vercel.
