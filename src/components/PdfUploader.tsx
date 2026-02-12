@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-const MAX_FILE_SIZE_MB = 4;
+const MAX_FILE_SIZE_MB = 1024;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 type ApiPayload = {
@@ -50,7 +50,7 @@ export function PdfUploader() {
     if (file.size > MAX_FILE_SIZE_BYTES) {
       setStatus(
         `PDF too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). ` +
-          `For Vercel serverless upload route, keep files under ~${MAX_FILE_SIZE_MB}MB.`
+          `Max upload size configured: ~${MAX_FILE_SIZE_MB}MB (1GB).`
       );
       return;
     }

@@ -97,7 +97,7 @@ This usually means your upload request did **not** return JSON (often a Vercel p
 
 What to do:
 
-- Keep PDF uploads small (for this prototype, stay under ~4MB).
+- Configured client/server upload limit is now ~1GB.
 - If you need larger files, switch to direct-to-storage upload (e.g., Supabase Storage signed upload URL) and process in a background job.
 
 The uploader now handles non-JSON error responses gracefully and shows a human-readable error instead of crashing on `response.json()`.
