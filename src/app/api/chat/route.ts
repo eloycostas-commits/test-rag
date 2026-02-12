@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { env } from '@/lib/env';
-import { getEmbedding, openai } from '@/lib/openai';
-import { supabaseAdmin } from '@/lib/supabase';
+import { createChatCompletion, getEmbedding } from '@/lib/openai';
+import { getSupabaseAdmin } from '@/lib/supabase';
 
 export async function POST(request: Request) {
   try {
@@ -13,6 +12,7 @@ export async function POST(request: Request) {
     }
 
     const queryEmbedding = await getEmbedding(question);
+    const supabaseAdmin = getSupabaseAdmin();
 
     const { data, error } = await supabaseAdmin.rpc('match_documents', {
       query_embedding: queryEmbedding,
@@ -26,23 +26,7 @@ export async function POST(request: Request) {
       .map((row: { title: string; content: string }) => `Source: ${row.title}\n${row.content}`)
       .join('\n\n---\n\n');
 
-    const completion = await openai.chat.completions.create({
-      model: env.OPENAI_CHAT_MODEL,
-      temperature: 0.1,
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a technical assistant for mechanical engineering and elevator regulations. Use only retrieved context. If missing information, say so.'
-        },
-        {
-          role: 'user',
-          content: `Question: ${question}\n\nContext:\n${context || 'No context found.'}`
-        }
-      ]
-    });
-
-    const answer = completion.choices[0]?.message?.content ?? 'No answer generated.';
+    const answer = await createChatCompletion(question, context);
     return NextResponse.json({ answer });
   } catch (error) {
     return NextResponse.json(
