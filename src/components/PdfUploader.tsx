@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-const MAX_FILE_SIZE_MB = 1024;
+const MAX_FILE_SIZE_MB = Number(process.env.NEXT_PUBLIC_MAX_UPLOAD_MB ?? 100);
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 type ApiPayload = {
@@ -50,7 +50,7 @@ export function PdfUploader() {
     if (file.size > MAX_FILE_SIZE_BYTES) {
       setStatus(
         `PDF too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). ` +
-          `Max upload size configured: ~${MAX_FILE_SIZE_MB}MB (1GB).`
+          `Configured max upload size is ~${MAX_FILE_SIZE_MB}MB.`
       );
       return;
     }
@@ -66,7 +66,7 @@ export function PdfUploader() {
       if (!response.ok) {
         const defaultMessage =
           response.status === 413
-            ? `Upload rejected by server size limits. Try a smaller file (<${MAX_FILE_SIZE_MB}MB).`
+            ? `Upload rejected by server request size limits. Try a smaller file or direct-to-storage uploads.`
             : `Upload failed (${response.status}).`;
         throw new Error(data.error ?? defaultMessage);
       }

@@ -97,7 +97,7 @@ This usually means your upload request did **not** return JSON (often a Vercel p
 
 What to do:
 
-- Configured client/server upload limit is now ~1GB.
+- Vercel Function request payload limits apply; large file POSTs (like 300MB) will fail with `FUNCTION_PAYLOAD_TOO_LARGE`.
 - If you need larger files, switch to direct-to-storage upload (e.g., Supabase Storage signed upload URL) and process in a background job.
 
 The uploader now handles non-JSON error responses gracefully and shows a human-readable error instead of crashing on `response.json()`.
@@ -122,3 +122,28 @@ In Vercel:
 4. Trigger a **Redeploy** after saving variables (existing deploys do not auto-pick up newly added env vars).
 
 Tip: use `.env.example` as the source of truth when copying values to Vercel.
+
+
+## Important limitation: 300MB uploads on Vercel
+
+If you upload through `/api/upload` on Vercel, large files can fail with:
+
+`Request Entity Too Large / FUNCTION_PAYLOAD_TOO_LARGE`
+
+You can set app-level limits to 100MB (`NEXT_PUBLIC_MAX_UPLOAD_MB=100`, `bodySizeLimit: "100mb"`), but Vercel may still enforce stricter Function payload limits depending on runtime/plan.
+
+Recommended architecture for large PDFs:
+
+1. Upload file directly from browser to Supabase Storage using signed upload URLs (no large payload through Vercel Function).
+2. Store metadata/path in Postgres.
+3. Process extraction/chunking in background workers (queue/cron/worker), not in the upload request cycle.
+
+
+## Setting upload limit to 100MB
+
+To configure a 100MB limit in this app:
+
+1. Set `NEXT_PUBLIC_MAX_UPLOAD_MB=100` in your environment (or keep the default).
+2. Keep `next.config.mjs` with `serverActions.bodySizeLimit = "100mb"`.
+
+Important: On Vercel, platform request-body limits may still block large uploads before your route runs. For reliable large-file ingestion, use direct browser upload to Supabase Storage + background processing.
