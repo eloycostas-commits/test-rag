@@ -2,7 +2,7 @@ import pdf from 'pdf-parse';
 import { NextResponse } from 'next/server';
 import { splitIntoChunks } from '@/lib/chunking';
 import { getEmbedding } from '@/lib/openai';
-import { supabaseAdmin } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 
 export async function POST(request: Request) {
   try {
@@ -20,6 +20,8 @@ export async function POST(request: Request) {
     if (chunks.length === 0) {
       return NextResponse.json({ error: 'No readable text found in PDF.' }, { status: 400 });
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     for (const [index, chunk] of chunks.entries()) {
       const embedding = await getEmbedding(chunk);

@@ -76,3 +76,17 @@ Google's [LangExtract](https://github.com/google/langextract) is promising for s
 - `src/app/api/upload/route.ts` – PDF ingest and vectorization.
 - `src/app/api/chat/route.ts` – Retrieval + GPT answer.
 - `supabase/schema.sql` – pgvector table and similarity RPC.
+
+## Vercel build troubleshooting
+
+If Vercel fails during `npm run build` with a non-obvious internal stack trace, the most common cause is missing environment variables.
+
+Make sure all of these are configured in **Project Settings → Environment Variables** for the target environment:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `OPENAI_API_KEY`
+- `OPENAI_CHAT_MODEL` (optional, defaults to `gpt-4o-mini`)
+- `OPENAI_EMBEDDING_MODEL` (optional, defaults to `text-embedding-3-small`)
+
+The server now validates these lazily and returns explicit errors at runtime instead of failing import-time during build.
