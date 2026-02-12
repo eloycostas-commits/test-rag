@@ -1,0 +1,78 @@
+# Mechanical Engineering PDF RAG Prototype (Next.js + Supabase + OpenAI)
+
+This project gives you a **TypeScript + React** prototype you can deploy on **Vercel** with **Supabase (free tier)**.
+
+## What it does
+
+- Upload a PDF (technical manuals, regulations, elevator docs).
+- Parse and chunk text.
+- Create embeddings with OpenAI.
+- Store chunks + vectors in Supabase `pgvector`.
+- Chat endpoint retrieves relevant chunks and asks GPT to answer from context.
+
+## Architecture (free-tier friendly)
+
+- **Frontend + API**: Next.js App Router on Vercel.
+- **Database + vector search**: Supabase Postgres + `vector` extension.
+- **LLM/embeddings**: OpenAI API (swap models via env vars).
+
+## Local setup
+
+1. Install deps:
+
+```bash
+npm install
+```
+
+2. Add env vars:
+
+```bash
+cp .env.example .env.local
+```
+
+3. In Supabase SQL editor, run:
+
+```sql
+-- from supabase/schema.sql
+```
+
+4. Start app:
+
+```bash
+npm run dev
+```
+
+## Deploy on Vercel
+
+1. Push this repo to GitHub.
+2. Import project in Vercel.
+3. Add the same env vars from `.env.local` in Vercel settings.
+4. Ensure Supabase project allows Vercel outbound calls.
+
+## LangExtract analysis
+
+Google's [LangExtract](https://github.com/google/langextract) is promising for structured extraction from long documents, but for your immediate RAG prototype it is **not the first tool I would use in production**:
+
+- It is focused on extraction workflows (entities, relations, schema-guided outputs), not turnkey vector retrieval.
+- It is Python-first, so integrating into a fully TypeScript Next.js stack adds operational complexity.
+- For current goals (upload PDFs + Q/A retrieval), direct chunking + embeddings + pgvector is simpler and cheaper to maintain.
+
+### Where LangExtract could help later
+
+- Build high-quality metadata from engineering PDFs (e.g., regulation numbers, component names, part standards, maintenance intervals).
+- Generate structured fields that you index alongside vectors to improve filtering (`country`, `regulation_type`, `equipment_type`, `safety_class`).
+- Power hybrid retrieval: semantic similarity + metadata filters.
+
+## Suggested next features
+
+- Authentication (Supabase Auth) and per-user private document spaces.
+- Citation mode (return chunk ids/pages in each answer).
+- OCR pipeline for scanned PDFs.
+- Ingestion queue/background jobs for larger files.
+- Guardrails for legal-regulation answers (version/date checks).
+
+## Key files
+
+- `src/app/api/upload/route.ts` – PDF ingest and vectorization.
+- `src/app/api/chat/route.ts` – Retrieval + GPT answer.
+- `supabase/schema.sql` – pgvector table and similarity RPC.
