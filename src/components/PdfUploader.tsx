@@ -2,6 +2,31 @@
 
 import { useState } from 'react';
 
+const MAX_FILE_SIZE_MB = 4;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+type ApiPayload = {
+  message?: string;
+  error?: string;
+};
+
+async function parseApiPayload(response: Response): Promise<ApiPayload> {
+  const contentType = response.headers.get('content-type') ?? '';
+  const raw = await response.text();
+
+  if (!raw) return {};
+
+  if (contentType.includes('application/json')) {
+    try {
+      return JSON.parse(raw) as ApiPayload;
+    } catch {
+      return { error: raw };
+    }
+  }
+
+  return { error: raw };
+}
+
 export function PdfUploader() {
   const [status, setStatus] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -22,14 +47,30 @@ export function PdfUploader() {
       return;
     }
 
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setStatus(
+        `PDF too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). ` +
+          `For Vercel serverless upload route, keep files under ~${MAX_FILE_SIZE_MB}MB.`
+      );
+      return;
+    }
+
     setIsLoading(true);
     const body = new FormData();
     body.append('pdf', file);
 
     try {
       const response = await fetch('/api/upload', { method: 'POST', body });
-      const data = (await response.json()) as { message?: string; error?: string };
-      if (!response.ok) throw new Error(data.error ?? 'Upload failed');
+      const data = await parseApiPayload(response);
+
+      if (!response.ok) {
+        const defaultMessage =
+          response.status === 413
+            ? `Upload rejected by server size limits. Try a smaller file (<${MAX_FILE_SIZE_MB}MB).`
+            : `Upload failed (${response.status}).`;
+        throw new Error(data.error ?? defaultMessage);
+      }
+
       setStatus(data.message ?? 'PDF uploaded and indexed.');
       form.reset();
     } catch (error) {

@@ -90,3 +90,14 @@ Make sure all of these are configured in **Project Settings → Environment Vari
 - `OPENAI_EMBEDDING_MODEL` (optional, defaults to `text-embedding-3-small`)
 
 The server now validates these lazily and returns explicit errors at runtime instead of failing import-time during build.
+
+## Upload error on Vercel: `Unexpected token "R" ... is not valid JSON`
+
+This usually means your upload request did **not** return JSON (often a Vercel platform error page/text such as `Request Entity Too Large`).
+
+What to do:
+
+- Keep PDF uploads small (for this prototype, stay under ~4MB).
+- If you need larger files, switch to direct-to-storage upload (e.g., Supabase Storage signed upload URL) and process in a background job.
+
+The uploader now handles non-JSON error responses gracefully and shows a human-readable error instead of crashing on `response.json()`.
