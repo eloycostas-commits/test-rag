@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 const MAX_FILE_SIZE_MB = Number(process.env.NEXT_PUBLIC_MAX_UPLOAD_MB ?? 100);
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const UPLOAD_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_UPLOAD_BUCKET ?? 'uploads-temp';
 
 type ApiPayload = {
   message?: string;
@@ -56,18 +58,29 @@ export function PdfUploader() {
     }
 
     setIsLoading(true);
-    const body = new FormData();
-    body.append('pdf', file);
 
     try {
-      const response = await fetch('/api/upload', { method: 'POST', body });
+      const supabase = getSupabaseBrowserClient();
+      const storagePath = `${Date.now()}-${crypto.randomUUID()}-${file.name.replace(/\s+/g, '-')}`;
+
+      const { error: uploadError } = await supabase.storage.from(UPLOAD_BUCKET).upload(storagePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type || 'application/pdf'
+      });
+
+      if (uploadError) throw uploadError;
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: file.name, storagePath })
+      });
+
       const data = await parseApiPayload(response);
 
       if (!response.ok) {
-        const defaultMessage =
-          response.status === 413
-            ? `Upload rejected by server request size limits. Try a smaller file or direct-to-storage uploads.`
-            : `Upload failed (${response.status}).`;
+        const defaultMessage = `Upload processing failed (${response.status}).`;
         throw new Error(data.error ?? defaultMessage);
       }
 
@@ -87,7 +100,7 @@ export function PdfUploader() {
         <input name="pdf" type="file" accept="application/pdf" />
         <div style={{ marginTop: '0.75rem' }}>
           <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Indexing…' : 'Upload + Index'}
+            {isLoading ? 'Uploading + Indexing…' : 'Upload + Index'}
           </button>
         </div>
       </form>

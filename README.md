@@ -4,15 +4,15 @@ This project gives you a **TypeScript + React** prototype you can deploy on **Ve
 
 ## What it does
 
-- Upload a PDF (technical manuals, regulations, elevator docs).
-- Parse and chunk text.
+- Upload a PDF (technical manuals, regulations, elevator docs) directly to Supabase Storage.
+- Trigger server-side parse/chunk/index from the stored file, then delete the temporary object.
 - Create deterministic local embeddings (no paid embedding API required).
 - Store chunks + vectors in Supabase `pgvector`.
 - Chat endpoint retrieves relevant chunks and asks GPT to answer from context.
 
 ## Architecture (free-tier friendly)
 
-- **Frontend + API**: Next.js App Router on Vercel.
+- **Frontend + API**: Next.js App Router on Vercel (metadata + processing calls).
 - **Database + vector search**: Supabase Postgres + `vector` extension.
 - **LLM**: Groq API (OpenAI-compatible endpoint).
 - **Embeddings**: lightweight local hashing embeddings (prototype-friendly, zero API cost).
@@ -86,6 +86,12 @@ Make sure all of these are configured in **Project Settings → Environment Vari
 
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_UPLOAD_BUCKET` (optional, defaults to `uploads-temp`)
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_UPLOAD_BUCKET` (optional, defaults to `uploads-temp`)
+- `NEXT_PUBLIC_MAX_UPLOAD_MB` (optional, defaults to `100`)
 - `GROQ_API_KEY`
 - `GROQ_CHAT_MODEL` (optional, defaults to `llama-3.1-8b-instant`)
 
@@ -132,11 +138,11 @@ If you upload through `/api/upload` on Vercel, large files can fail with:
 
 You can set app-level limits to 100MB (`NEXT_PUBLIC_MAX_UPLOAD_MB=100`, `bodySizeLimit: "100mb"`), but Vercel may still enforce stricter Function payload limits depending on runtime/plan.
 
-Recommended architecture for large PDFs:
+Current implemented flow for larger files:
 
-1. Upload file directly from browser to Supabase Storage using signed upload URLs (no large payload through Vercel Function).
-2. Store metadata/path in Postgres.
-3. Process extraction/chunking in background workers (queue/cron/worker), not in the upload request cycle.
+1. Browser uploads PDF directly to Supabase Storage bucket (`uploads-temp` by default).
+2. App calls `/api/upload` with `{ fileName, storagePath }` to parse/chunk/index.
+3. API deletes the temporary storage object after processing (best-effort cleanup on errors too).
 
 
 ## Setting upload limit to 100MB
@@ -147,3 +153,14 @@ To configure a 100MB limit in this app:
 2. Keep `next.config.mjs` with `serverActions.bodySizeLimit = "100mb"`.
 
 Important: On Vercel, platform request-body limits may still block large uploads before your route runs. For reliable large-file ingestion, use direct browser upload to Supabase Storage + background processing.
+
+
+## Direct-to-storage upload flow
+
+This project now avoids sending full file bodies through the Next.js upload route.
+
+- Client uploads PDF to Supabase Storage using `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- Client sends only JSON metadata (`fileName`, `storagePath`) to `/api/upload`.
+- Server downloads from storage with service role, indexes chunks, and removes the temp file.
+
+Create the storage bucket (default: `uploads-temp`) in Supabase before using uploads.
