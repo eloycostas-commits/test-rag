@@ -101,3 +101,25 @@ What to do:
 - If you need larger files, switch to direct-to-storage upload (e.g., Supabase Storage signed upload URL) and process in a background job.
 
 The uploader now handles non-JSON error responses gracefully and shows a human-readable error instead of crashing on `response.json()`.
+
+## Required Vercel environment variables (important)
+
+If you see:
+
+`Invalid server environment variables. Please configure: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY`
+
+it means the deployment has missing secrets.
+
+In Vercel:
+
+1. Open **Project Settings → Environment Variables**.
+2. Add these variables:
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `OPENAI_API_KEY`
+   - `OPENAI_CHAT_MODEL` *(optional)*
+   - `OPENAI_EMBEDDING_MODEL` *(optional)*
+3. Ensure they are enabled for **Production**, **Preview**, and **Development** (as needed).
+4. Trigger a **Redeploy** after saving variables (existing deploys do not auto-pick up newly added env vars).
+
+Tip: use `.env.example` as the source of truth when copying values to Vercel.

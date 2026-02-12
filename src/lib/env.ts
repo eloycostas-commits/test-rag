@@ -27,7 +27,7 @@ export function getEnv(): AppEnv {
     const missing = result.error.issues.map((issue) => issue.path.join('.')).join(', ');
     throw new Error(
       `Invalid server environment variables. Please configure: ${missing}. ` +
-        'For Vercel, add them in Project Settings → Environment Variables.'
+        'For Vercel: Project Settings → Environment Variables, add values for Production/Preview/Development, then redeploy.'
     );
   }
 
