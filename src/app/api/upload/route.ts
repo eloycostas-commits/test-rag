@@ -19,17 +19,17 @@ export async function POST(request: Request) {
 
     if (!fileName || !storagePath) {
       return NextResponse.json(
-        { error: 'fileName and storagePath are required.' },
+        { error: 'fileName y storagePath son obligatorios.' },
         { status: 400 }
       );
     }
 
     if (!fileName.toLowerCase().endsWith('.pdf')) {
-      return NextResponse.json({ error: 'Only .pdf files are supported.' }, { status: 400 });
+      return NextResponse.json({ error: 'Solo se admiten archivos .pdf.' }, { status: 400 });
     }
 
     if (storagePath.length > 255) {
-      return NextResponse.json({ error: 'Invalid storage path.' }, { status: 400 });
+      return NextResponse.json({ error: 'Ruta de almacenamiento inválida.' }, { status: 400 });
     }
 
     const env = getEnv();
@@ -42,11 +42,11 @@ export async function POST(request: Request) {
       .download(storagePath);
 
     if (downloadError || !fileData) {
-      throw new Error(downloadError?.message ?? 'Failed to download uploaded PDF from storage.');
+      throw new Error(downloadError?.message ?? 'No se pudo descargar el PDF desde almacenamiento.');
     }
 
     if (!fileData.type.includes('pdf')) {
-      throw new Error('Stored file is not recognized as PDF content.');
+      throw new Error('El archivo almacenado no parece ser un PDF válido.');
     }
 
     if (fileData.size > MAX_SERVER_FILE_MB * 1024 * 1024) {
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     const chunks = splitIntoChunks(parsed.text);
 
     if (chunks.length === 0) {
-      return NextResponse.json({ error: 'No readable text found in PDF.' }, { status: 400 });
+      return NextResponse.json({ error: 'No se encontró texto legible en el PDF.' }, { status: 400 });
     }
 
     for (let start = 0; start < chunks.length; start += EMBEDDING_BATCH_SIZE) {
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     console.info('[upload] indexed successfully', { fileName, ...stats });
 
     return NextResponse.json({
-      message: `Indexed ${chunks.length} chunks from ${fileName}.`,
+      message: `Se indexaron ${chunks.length} chunks de ${fileName}.`,
       stats
     });
   } catch (error) {
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const errorMessage = error instanceof Error ? error.message : 'Failed to process PDF.';
+    const errorMessage = error instanceof Error ? error.message : 'No se pudo procesar el PDF.';
     console.error('[upload] failed', { storagePath, error: errorMessage });
 
     return NextResponse.json({ error: errorMessage }, { status: 500 });

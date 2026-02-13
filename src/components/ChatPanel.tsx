@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  type KeyboardEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 
 type Source = {
   title: string;
@@ -22,9 +16,9 @@ type Message = {
 };
 
 const starterQuestions = [
-  'What maintenance interval is recommended for elevator safety brakes?',
-  'Which regulation section mentions emergency evacuation procedures?',
-  'Summarize the load calculations in the uploaded mechanical spec.'
+  '¿Qué intervalo de mantenimiento se recomienda para frenos de seguridad del ascensor?',
+  '¿Qué sección normativa menciona procedimientos de evacuación de emergencia?',
+  'Resume los cálculos de carga del documento técnico subido.'
 ];
 
 export function ChatPanel() {
@@ -56,7 +50,7 @@ export function ChatPanel() {
       });
 
       const data = (await response.json()) as { answer?: string; error?: string; sources?: Source[] };
-      if (!response.ok) throw new Error(data.error ?? 'Chat request failed');
+      if (!response.ok) throw new Error(data.error ?? 'Falló la consulta al chat.');
 
       setMessages((current) => [
         ...current,
@@ -65,7 +59,7 @@ export function ChatPanel() {
     } catch (error) {
       setMessages((current) => [
         ...current,
-        { role: 'assistant', content: error instanceof Error ? error.message : 'Unknown error.' }
+        { role: 'assistant', content: error instanceof Error ? error.message : 'Error desconocido.' }
       ]);
     } finally {
       setIsLoading(false);
@@ -89,23 +83,23 @@ export function ChatPanel() {
 
   return (
     <div className="card">
-      <h2>2) Ask questions to your engineering corpus</h2>
+      <h2>2) Hacer preguntas al corpus de ingeniería</h2>
       <textarea
         rows={3}
-        placeholder="Press Enter to send, Shift+Enter for new line"
+        placeholder="Enter para enviar, Shift+Enter para nueva línea"
         value={question}
         onChange={(event) => setQuestion(event.target.value)}
         onKeyDown={onKeyDown}
       />
       <div style={{ marginTop: '0.75rem' }}>
         <button onClick={() => void ask()} disabled={isLoading}>
-          {isLoading ? 'Thinking…' : 'Ask'}
+          {isLoading ? 'Pensando…' : 'Preguntar'}
         </button>
       </div>
 
       {showStarters ? (
         <div className="card nested">
-          <strong>Try one of these:</strong>
+          <strong>Prueba una de estas preguntas:</strong>
           <ul>
             {starterQuestions.map((example) => (
               <li key={example}>
@@ -122,10 +116,10 @@ export function ChatPanel() {
         {messages.map((msg, index) => (
           <div key={`${msg.role}-${index}`} className={`card chat-bubble ${msg.role}`}>
             <div className="chat-row">
-              <strong>{msg.role === 'user' ? 'You' : 'Assistant'}:</strong>
+              <strong>{msg.role === 'user' ? 'Tú' : 'Asistente'}:</strong>
               {msg.role === 'assistant' ? (
                 <button className="link-button" onClick={() => void copyAnswer(msg.content)}>
-                  Copy
+                  Copiar
                 </button>
               ) : null}
             </div>
@@ -133,11 +127,11 @@ export function ChatPanel() {
 
             {msg.sources?.length ? (
               <details>
-                <summary>Sources ({msg.sources.length})</summary>
+                <summary>Fuentes ({msg.sources.length})</summary>
                 <ul>
                   {msg.sources.map((source, sourceIndex) => (
                     <li key={`${source.title}-${source.chunkIndex}-${sourceIndex}`}>
-                      <strong>{source.title}</strong> · chunk {source.chunkIndex} · similarity{' '}
+                      <strong>{source.title}</strong> · chunk {source.chunkIndex} · similitud{' '}
                       {source.similarity}
                       <br />
                       <small>{source.excerpt}...</small>
@@ -149,7 +143,7 @@ export function ChatPanel() {
           </div>
         ))}
 
-        {isLoading ? <p className="muted">Assistant is typing…</p> : null}
+        {isLoading ? <p className="muted">El asistente está escribiendo…</p> : null}
       </div>
     </div>
   );

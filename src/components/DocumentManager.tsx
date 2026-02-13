@@ -21,10 +21,10 @@ export function DocumentManager() {
         documents?: IndexedDocument[];
         error?: string;
       };
-      if (!response.ok) throw new Error(data.error ?? 'Failed to load documents');
+      if (!response.ok) throw new Error(data.error ?? 'No se pudieron cargar los documentos');
       setDocuments(data.documents ?? []);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Unknown error');
+      setStatus(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
       setIsLoading(false);
     }
@@ -42,7 +42,7 @@ export function DocumentManager() {
   }, []);
 
   async function deleteDocument(title: string) {
-    const confirmed = window.confirm(`Delete all indexed chunks for "${title}"?`);
+    const confirmed = window.confirm(`¿Eliminar todos los chunks indexados para "${title}"?`);
     if (!confirmed) return;
 
     try {
@@ -53,25 +53,25 @@ export function DocumentManager() {
       });
 
       const data = (await response.json()) as { message?: string; error?: string };
-      if (!response.ok) throw new Error(data.error ?? 'Delete failed');
+      if (!response.ok) throw new Error(data.error ?? 'Falló la eliminación');
 
-      setStatus(data.message ?? 'Document deleted');
+      setStatus(data.message ?? 'Documento eliminado');
       await loadDocuments();
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Unknown error');
+      setStatus(error instanceof Error ? error.message : 'Error desconocido');
     }
   }
 
   return (
     <div className="card">
-      <h2>3) Manage indexed PDFs</h2>
+      <h2>3) Gestionar PDFs indexados</h2>
       <button onClick={() => void loadDocuments()} disabled={isLoading}>
-        {isLoading ? 'Refreshing…' : 'Refresh list'}
+        {isLoading ? 'Actualizando…' : 'Actualizar lista'}
       </button>
       {status ? <p>{status}</p> : null}
 
       {documents.length === 0 ? (
-        <p className="muted">No indexed PDFs yet.</p>
+        <p className="muted">Aún no hay PDFs indexados.</p>
       ) : (
         <ul>
           {documents.map((doc) => (
@@ -83,7 +83,7 @@ export function DocumentManager() {
                   style={{ marginTop: '0.4rem', background: '#b91c1c' }}
                   onClick={() => void deleteDocument(doc.title)}
                 >
-                  Delete document data
+                  Eliminar datos del documento
                 </button>
               </div>
             </li>

@@ -15,19 +15,19 @@ export async function POST(request: Request) {
     const question = body.question?.trim();
 
     if (!question) {
-      return NextResponse.json({ error: 'Question is required.' }, { status: 400 });
+      return NextResponse.json({ error: 'La pregunta es obligatoria.' }, { status: 400 });
     }
 
     if (question.length < 8) {
       return NextResponse.json(
-        { error: 'Question is too short. Please provide more context.' },
+        { error: 'La pregunta es demasiado corta. Añade más contexto.' },
         { status: 400 }
       );
     }
 
     if (question.length > 1200) {
       return NextResponse.json(
-        { error: 'Question is too long. Please keep it under 1200 characters.' },
+        { error: 'La pregunta es demasiado larga. Debe tener menos de 1200 caracteres.' },
         { status: 400 }
       );
     }
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     if (rows.length === 0) {
       return NextResponse.json({
         answer:
-          'I could not find relevant excerpts in the uploaded PDFs. Try asking with more specific terms (standard number, component, or regulation section).',
+          'No encontré fragmentos relevantes en los PDFs cargados. Intenta con términos más específicos (norma, componente o sección regulatoria).',
         sources: [] as Source[]
       });
     }
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ answer, sources });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to answer question.' },
+      { error: error instanceof Error ? error.message : 'No se pudo responder la pregunta.' },
       { status: 500 }
     );
   }

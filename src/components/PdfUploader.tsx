@@ -43,9 +43,9 @@ export function PdfUploader() {
 
   const tips = useMemo(
     () => [
-      'Use searchable PDFs (not scanned images) for best retrieval quality.',
-      'Prefer one topic per PDF for cleaner chunking and citations.',
-      `Max upload configured: ${MAX_FILE_SIZE_MB}MB.`
+      'Usa PDFs con texto seleccionable (no solo imágenes escaneadas).',
+      'Mejor un tema por PDF para chunking y citas más limpias.',
+      `Tamaño máximo configurado: ${MAX_FILE_SIZE_MB}MB.`
     ],
     []
   );
@@ -58,24 +58,24 @@ export function PdfUploader() {
     setUploadStats(null);
 
     if (!file) {
-      setStatus('Please select a PDF file.');
+      setStatus('Selecciona un archivo PDF.');
       return;
     }
 
     if (!file.type.includes('pdf')) {
-      setStatus('Only PDF files are allowed.');
+      setStatus('Solo se permiten archivos PDF.');
       return;
     }
 
     if (file.size < 1024) {
-      setStatus('The selected file is too small or invalid.');
+      setStatus('El archivo seleccionado es demasiado pequeño o inválido.');
       return;
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
       setStatus(
-        `PDF too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). ` +
-          `Configured max upload size is ~${MAX_FILE_SIZE_MB}MB.`
+        `PDF demasiado grande (${(file.size / (1024 * 1024)).toFixed(2)}MB). ` +
+          `El tamaño máximo configurado es ~${MAX_FILE_SIZE_MB}MB.`
       );
       return;
     }
@@ -87,7 +87,7 @@ export function PdfUploader() {
       const supabase = getSupabaseBrowserClient();
       const storagePath = `${Date.now()}-${crypto.randomUUID()}-${file.name.replace(/\s+/g, '-')}`;
 
-      setStatus('Uploading file to storage…');
+      setStatus('Subiendo archivo al almacenamiento…');
       setProgress(25);
 
       const { error: uploadError } = await supabase.storage.from(UPLOAD_BUCKET).upload(storagePath, file, {
@@ -98,7 +98,7 @@ export function PdfUploader() {
 
       if (uploadError) throw uploadError;
 
-      setStatus('Processing and indexing PDF…');
+      setStatus('Procesando e indexando PDF…');
       setProgress(65);
 
       const response = await fetch('/api/upload', {
@@ -110,17 +110,17 @@ export function PdfUploader() {
       const data = await parseApiPayload(response);
 
       if (!response.ok) {
-        throw new Error(data.error ?? `Upload processing failed (${response.status}).`);
+        throw new Error(data.error ?? `Falló el procesamiento de la carga (${response.status}).`);
       }
 
       setProgress(100);
-      setStatus(data.message ?? 'PDF uploaded and indexed.');
+      setStatus(data.message ?? 'PDF subido e indexado correctamente.');
       setUploadStats(data.stats ?? null);
       window.dispatchEvent(new Event('documents-updated'));
       form.reset();
       setSelectedFileName('');
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Unknown error.');
+      setStatus(error instanceof Error ? error.message : 'Error desconocido.');
       setProgress(0);
     } finally {
       setIsLoading(false);
@@ -129,7 +129,7 @@ export function PdfUploader() {
 
   return (
     <div className="card">
-      <h2>1) Upload PDF documentation</h2>
+      <h2>1) Subir documentación PDF</h2>
       <form onSubmit={onSubmit}>
         <input
           name="pdf"
@@ -138,15 +138,15 @@ export function PdfUploader() {
           onChange={(event) => setSelectedFileName(event.target.files?.[0]?.name ?? '')}
         />
 
-        {selectedFileName ? <p className="muted">Selected: {selectedFileName}</p> : null}
+        {selectedFileName ? <p className="muted">Seleccionado: {selectedFileName}</p> : null}
 
-        <div className="progress-wrap" aria-label="upload progress">
+        <div className="progress-wrap" aria-label="progreso de carga">
           <div className="progress-bar" style={{ width: `${progress}%` }} />
         </div>
 
         <div style={{ marginTop: '0.75rem' }}>
           <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Uploading + Indexing…' : 'Upload + Index'}
+            {isLoading ? 'Subiendo + Indexando…' : 'Subir + Indexar'}
           </button>
         </div>
       </form>
@@ -155,18 +155,18 @@ export function PdfUploader() {
 
       {uploadStats ? (
         <div className="card nested">
-          <strong>Upload stats</strong>
+          <strong>Estadísticas de carga</strong>
           <ul>
-            <li>Pages: {uploadStats.pages ?? 'Unknown'}</li>
+            <li>Páginas: {uploadStats.pages ?? 'Desconocido'}</li>
             <li>Chunks: {uploadStats.chunks}</li>
-            <li>Avg chunk length: {uploadStats.avgChunkLength}</li>
-            <li>Processing time: {(uploadStats.processingMs / 1000).toFixed(1)}s</li>
+            <li>Longitud promedio de chunk: {uploadStats.avgChunkLength}</li>
+            <li>Tiempo de procesamiento: {(uploadStats.processingMs / 1000).toFixed(1)}s</li>
           </ul>
         </div>
       ) : null}
 
       <div className="card nested">
-        <strong>Tips</strong>
+        <strong>Consejos</strong>
         <ul>
           {tips.map((tip) => (
             <li key={tip}>{tip}</li>

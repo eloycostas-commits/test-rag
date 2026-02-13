@@ -31,7 +31,7 @@ export async function GET() {
     return NextResponse.json({ documents: Array.from(grouped.values()) });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to list documents.' },
+      { error: error instanceof Error ? error.message : 'No se pudieron listar los documentos.' },
       { status: 500 }
     );
   }
@@ -43,7 +43,7 @@ export async function DELETE(request: Request) {
     const title = body.title?.trim();
 
     if (!title) {
-      return NextResponse.json({ error: 'Document title is required.' }, { status: 400 });
+      return NextResponse.json({ error: 'El título del documento es obligatorio.' }, { status: 400 });
     }
 
     const supabase = getSupabaseAdmin();
@@ -51,10 +51,10 @@ export async function DELETE(request: Request) {
 
     if (error) throw error;
 
-    return NextResponse.json({ message: `Deleted indexed chunks for "${title}".` });
+    return NextResponse.json({ message: `Se eliminaron los chunks indexados de "${title}".` });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to delete document.' },
+      { error: error instanceof Error ? error.message : 'No se pudo eliminar el documento.' },
       { status: 500 }
     );
   }

@@ -5,14 +5,14 @@ import { PdfUploader } from '@/components/PdfUploader';
 export default function HomePage() {
   return (
     <main>
-      <h1>Mechanical Engineering RAG prototype</h1>
+      <h1>Prototipo RAG para Ingeniería Mecánica</h1>
       <p>
-        Upload technical manuals, legal regulations, and elevator documentation in PDF format. Then
-        query the knowledge base with a chatbot powered by Groq + Supabase pgvector.
+        Sube manuales técnicos, normativas legales y documentación de ascensores en PDF. Luego
+        consulta la base de conocimiento con un chatbot impulsado por Groq + Supabase pgvector.
       </p>
       <PdfUploader />
-      <DocumentManager />
       <ChatPanel />
+      <DocumentManager />
     </main>
   );
 }
