@@ -6,6 +6,7 @@ This project gives you a **TypeScript + React** prototype you can deploy on **Ve
 
 - Upload a PDF (technical manuals, regulations, elevator docs) directly to Supabase Storage.
 - Trigger server-side parse/chunk/index from the stored file, then delete the temporary object.
+- Delete previously indexed PDF data by title from the UI (when you uploaded a wrong file).
 - Create deterministic local embeddings (no paid embedding API required).
 - Store chunks + vectors in Supabase `pgvector`.
 - Chat endpoint retrieves relevant chunks and asks GPT to answer from context.
@@ -76,6 +77,7 @@ Google's [LangExtract](https://github.com/google/langextract) is promising for s
 
 - `src/app/api/upload/route.ts` – PDF ingest and vectorization.
 - `src/app/api/chat/route.ts` – Retrieval + GPT answer.
+- `src/app/api/documents/route.ts` – List/delete indexed documents by title.
 - `supabase/schema.sql` – pgvector table and similarity RPC.
 
 ## Vercel build troubleshooting

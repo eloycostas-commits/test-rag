@@ -116,6 +116,7 @@ export function PdfUploader() {
       setProgress(100);
       setStatus(data.message ?? 'PDF uploaded and indexed.');
       setUploadStats(data.stats ?? null);
+      window.dispatchEvent(new Event('documents-updated'));
       form.reset();
       setSelectedFileName('');
     } catch (error) {
