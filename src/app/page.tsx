@@ -1,4 +1,5 @@
 import { ChatPanel } from '@/components/ChatPanel';
+import { DocumentManager } from '@/components/DocumentManager';
 import { PdfUploader } from '@/components/PdfUploader';
 
 export default function HomePage() {
@@ -10,6 +11,7 @@ export default function HomePage() {
         query the knowledge base with a chatbot powered by Groq + Supabase pgvector.
       </p>
       <PdfUploader />
+      <DocumentManager />
       <ChatPanel />
     </main>
   );
