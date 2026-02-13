@@ -1,0 +1,107 @@
+:root {
+  color-scheme: light dark;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+main {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.card {
+  background: #111827;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.card.nested {
+  background: #0b1220;
+  margin-top: 0.75rem;
+}
+
+button {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.link-button {
+  background: transparent;
+  color: #93c5fd;
+  padding: 0;
+  border: none;
+  text-align: left;
+}
+
+input,
+textarea {
+  width: 100%;
+  background: #020617;
+  color: inherit;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  padding: 0.6rem;
+}
+
+pre {
+  white-space: pre-wrap;
+  margin: 0.5rem 0 0;
+}
+
+.muted {
+  color: #94a3b8;
+}
+
+.progress-wrap {
+  width: 100%;
+  height: 8px;
+  background: #1f2937;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #22d3ee);
+  transition: width 200ms ease;
+}
+
+.chat-list {
+  margin-top: 1rem;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.chat-bubble.user {
+  border-color: #2563eb;
+}
+
+.chat-bubble.assistant {
+  border-color: #0ea5e9;
+}
+
+.chat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
